@@ -17,7 +17,7 @@ public class NanoGS : ModuleRules
 			new string[] {
 				// Access Renderer private headers for FViewInfo::ViewRect (screen percentage support)
 				System.IO.Path.Combine(EngineDirectory, "Source/Runtime/Renderer/Private"),
-				System.IO.Path.Combine(EngineDirectory, "Source/Runtime/Renderer/Internal"),
+				// Note: Renderer/Internal was added in UE5.6 and does not exist in UE5.5.x
 			}
 		);
 

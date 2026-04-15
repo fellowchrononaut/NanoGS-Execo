@@ -212,8 +212,7 @@ void FGaussianSplatGPUResources::CreateDummyWhiteTexture(FRHICommandListBase& RH
 	// Create a 1x1 white texture
 	const FRHITextureCreateDesc TextureDesc =
 		FRHITextureCreateDesc::Create2D(TEXT("GaussianSplatDummyWhiteTexture"), 1, 1, PF_R8G8B8A8)
-		.SetFlags(ETextureCreateFlags::ShaderResource)
-		.SetInitialState(ERHIAccess::SRVMask);
+		.SetFlags(ETextureCreateFlags::ShaderResource);
 
 	DummyWhiteTexture = RHICreateTexture(TextureDesc);
 
@@ -237,12 +236,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 		// Dummy ClusterVisibilityBitmap (1 uint)
 		{
 			const uint32 BufferSize = sizeof(uint32);
-			FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-				TEXT("GaussianClusterVisibilityBitmapDummy"),
-				BufferSize,
-				sizeof(uint32),
-				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer)
-				.SetInitialState(ERHIAccess::SRVMask);
+			FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer);
 			ClusterVisibilityBitmap = RHICmdList.CreateBuffer(Desc);
 
 			uint32 Zero = 0;
@@ -259,12 +254,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 		// Dummy LODClusterSelectedBitmap (1 uint)
 		{
 			const uint32 BufferSize = sizeof(uint32);
-			FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-				TEXT("GaussianLODClusterSelectedBitmapDummy"),
-				BufferSize,
-				sizeof(uint32),
-				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer)
-				.SetInitialState(ERHIAccess::SRVMask);
+			FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer);
 			LODClusterSelectedBitmap = RHICmdList.CreateBuffer(Desc);
 
 			uint32 Zero = 0;
@@ -281,12 +272,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 		// Dummy SelectedClusterBuffer (1 uint)
 		{
 			const uint32 BufferSize = sizeof(uint32);
-			FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-				TEXT("GaussianSelectedClusterBufferDummy"),
-				BufferSize,
-				sizeof(uint32),
-				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer)
-				.SetInitialState(ERHIAccess::SRVMask);
+			FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer);
 			SelectedClusterBuffer = RHICmdList.CreateBuffer(Desc);
 
 			uint32 Zero = 0;
@@ -303,12 +290,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 		// Dummy CompactedSplatIndicesBuffer (1 uint) - needed even when UseCompaction=0
 		{
 			const uint32 BufferSize = sizeof(uint32);
-			FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-				TEXT("GaussianCompactedSplatIndicesBufferDummy"),
-				BufferSize,
-				sizeof(uint32),
-				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer)
-				.SetInitialState(ERHIAccess::SRVMask);
+			FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+				BUF_Static | BUF_ShaderResource | BUF_StructuredBuffer);
 			CompactedSplatIndicesBuffer = RHICmdList.CreateBuffer(Desc);
 
 			uint32 Zero = 0;
@@ -329,12 +312,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// Size = max possible visible clusters (all clusters could be visible)
 	{
 		const uint32 BufferSize = ClusterCount * sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianVisibleClusterBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		VisibleClusterBuffer = RHICmdList.CreateBuffer(Desc);
 
 		VisibleClusterBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -350,12 +329,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// Create visible cluster count buffer (single uint, atomic counter)
 	{
 		const uint32 BufferSize = sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianVisibleClusterCountBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		VisibleClusterCountBuffer = RHICmdList.CreateBuffer(Desc);
 
 		VisibleClusterCountBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -373,12 +348,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// Total: 20 bytes, but we use 32 bytes for alignment
 	{
 		const uint32 BufferSize = 32;  // 5 uints + padding for alignment
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianIndirectDrawArgsBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_DrawIndirect | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::IndirectArgs);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_DrawIndirect | BUF_StructuredBuffer);
 		IndirectDrawArgsBuffer = RHICmdList.CreateBuffer(Desc);
 
 		// Initialize with default values
@@ -407,12 +378,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 		uint32 BitmapSize = FMath::DivideAndRoundUp(ClusterCount, 32) * sizeof(uint32);
 		BitmapSize = FMath::Max(BitmapSize, (uint32)sizeof(uint32));  // At least one uint32
 
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianClusterVisibilityBitmap"),
-			BitmapSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BitmapSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		ClusterVisibilityBitmap = RHICmdList.CreateBuffer(Desc);
 
 		ClusterVisibilityBitmapUAV = RHICmdList.CreateUnorderedAccessView(
@@ -433,12 +400,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 		uint32 BufferSize = LeafClusterCount * sizeof(uint32);
 		BufferSize = FMath::Max(BufferSize, (uint32)sizeof(uint32));  // At least one uint32
 
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianSelectedClusterBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		SelectedClusterBuffer = RHICmdList.CreateBuffer(Desc);
 
 		SelectedClusterBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -457,12 +420,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// LOD cluster buffer - stores unique parent cluster indices
 	{
 		uint32 BufferSize = ClusterCount * sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianLODClusterBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		LODClusterBuffer = RHICmdList.CreateBuffer(Desc);
 
 		LODClusterBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -478,12 +437,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// LOD cluster count buffer (atomic counter)
 	{
 		uint32 BufferSize = sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianLODClusterCountBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		LODClusterCountBuffer = RHICmdList.CreateBuffer(Desc);
 
 		LODClusterCountBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -502,12 +457,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 		uint32 BitmapSize = FMath::DivideAndRoundUp(ClusterCount, 32) * sizeof(uint32);
 		BitmapSize = FMath::Max(BitmapSize, (uint32)sizeof(uint32));
 
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianLODClusterSelectedBitmap"),
-			BitmapSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BitmapSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		LODClusterSelectedBitmap = RHICmdList.CreateBuffer(Desc);
 
 		LODClusterSelectedBitmapUAV = RHICmdList.CreateUnorderedAccessView(
@@ -523,12 +474,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// LOD splat total buffer (atomic counter for total LOD splats)
 	{
 		uint32 BufferSize = sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianLODSplatTotalBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		LODSplatTotalBuffer = RHICmdList.CreateBuffer(Desc);
 
 		LODSplatTotalBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -544,12 +491,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// LOD splat output count buffer (atomic counter for valid LOD splat output)
 	{
 		uint32 BufferSize = sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianLODSplatOutputCountBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		LODSplatOutputCountBuffer = RHICmdList.CreateBuffer(Desc);
 
 		LODSplatOutputCountBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -568,12 +511,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// CompactedSplatIndicesBuffer - stores visible splat indices
 	{
 		const uint32 BufferSize = TotalSplatCount * sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianCompactedSplatIndicesBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		CompactedSplatIndicesBuffer = RHICmdList.CreateBuffer(Desc);
 
 		CompactedSplatIndicesBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -589,12 +528,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// VisibleSplatCountBuffer - atomic counter for visible splat count
 	{
 		const uint32 BufferSize = sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianVisibleSplatCountBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		VisibleSplatCountBuffer = RHICmdList.CreateBuffer(Desc);
 
 		VisibleSplatCountBufferUAV = RHICmdList.CreateUnorderedAccessView(
@@ -611,12 +546,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// Format: uint3 (numGroupsX, numGroupsY, numGroupsZ)
 	{
 		const uint32 BufferSize = 3 * sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianIndirectDispatchArgsBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_DrawIndirect | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::IndirectArgs);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_DrawIndirect | BUF_StructuredBuffer);
 		IndirectDispatchArgsBuffer = RHICmdList.CreateBuffer(Desc);
 
 		// Initialize with default values (1, 1, 1)
@@ -638,12 +569,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	// CalcViewDataCompactedGlobal.
 	{
 		const uint32 BufferSize = 3 * sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianSortIndirectArgsBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_DrawIndirect | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_DrawIndirect | BUF_StructuredBuffer);
 		SortIndirectArgsBuffer = RHICmdList.CreateBuffer(Desc);
 		SortIndirectArgsBufferUAV = RHICmdList.CreateUnorderedAccessView(
 			SortIndirectArgsBuffer, FRHIViewDesc::CreateBufferUAV()
@@ -652,12 +579,8 @@ void FGaussianSplatGPUResources::CreatePerInstanceBuffers(FRHICommandListBase& R
 	}
 	{
 		const uint32 BufferSize = 2 * sizeof(uint32);
-		FRHIBufferCreateDesc Desc = FRHIBufferCreateDesc::Create(
-			TEXT("GaussianSortParamsBuffer"),
-			BufferSize,
-			sizeof(uint32),
-			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer)
-			.SetInitialState(ERHIAccess::UAVCompute);
+		FRHIBufferDesc Desc(BufferSize, sizeof(uint32),
+			BUF_UnorderedAccess | BUF_ShaderResource | BUF_StructuredBuffer);
 		SortParamsBuffer = RHICmdList.CreateBuffer(Desc);
 		SortParamsBufferUAV = RHICmdList.CreateUnorderedAccessView(
 			SortParamsBuffer, FRHIViewDesc::CreateBufferUAV()
