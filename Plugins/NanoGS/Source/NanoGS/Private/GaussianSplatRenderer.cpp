@@ -683,11 +683,10 @@ void FGaussianSplatRenderer::DispatchCompactSplats(
 		return;
 	}
 
-	// Reset visible splat count to 0
-	uint32 Zero = 0;
-	void* Data = RHICmdList.LockBuffer(GPUResources->VisibleSplatCountBuffer, 0, sizeof(uint32), RLM_WriteOnly);
-	FMemory::Memcpy(Data, &Zero, sizeof(uint32));
-	RHICmdList.UnlockBuffer(GPUResources->VisibleSplatCountBuffer);
+	// Reset visible splat count to 0.
+	// ClearUAVUint is cross-platform (D3D12 + Vulkan). The previous LockBuffer/UnlockBuffer
+	// pattern fails on Vulkan because CPU buffer uploads are forbidden inside a render pass.
+	RHICmdList.ClearUAVUint(GPUResources->VisibleSplatCountBufferUAV, FUintVector4(0, 0, 0, 0));
 
 	// Transition buffers
 	RHICmdList.Transition(FRHITransitionInfo(GPUResources->CompactedSplatIndicesBuffer, ERHIAccess::Unknown, ERHIAccess::UAVCompute));
