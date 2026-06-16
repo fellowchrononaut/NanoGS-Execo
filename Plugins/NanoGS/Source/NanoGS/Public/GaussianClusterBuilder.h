@@ -39,7 +39,13 @@ public:
 		/** LOD reduction ratio - how many original splats per LOD splat (default: divide by 4) */
 		int32 LODReductionRatio = 4;
 
-		FBuildSettings() = default;
+		FBuildSettings()
+			: SplatsPerCluster(GaussianClusterConstants::DefaultSplatsPerCluster)
+			, MaxChildrenPerCluster(GaussianClusterConstants::MaxChildrenPerCluster)
+			, bReorderSplats(true)
+			, bGenerateLOD(true)
+			, LODReductionRatio(4)
+		{}
 	};
 
 	/**
